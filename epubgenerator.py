@@ -8,16 +8,26 @@ class EpubGenerator(object):
         self._output_file_path_without_extension = output_file_path_without_extension
         self._metadata = metadata
         self._html_content = html_content
-        self._templates_folder = "{}/template".format(dirname(realpath(__file__)))
-        self._workspace_folder = "target/ws"
+        self._templates_folder = "{}/templates".format(dirname(realpath(__file__)))
+        self._workspace_folder = "{}/ws".format(dirname(output_file_path_without_extension))
         self._book_file_paths = []
+        self._chapter_file_names = []
+        self._hidden_nav_counter = 0
+        self._nav_points = ""
         self._templates = {}
+
+    @property
+    def _nav_counter(self):
+        value = self._hidden_nav_counter
+        self._hidden_nav_counter += 1
+        return value
 
     def generate(self):
         self._load_templates()
         self._create_workspace()
         self._create_title_page()
-        self._create_content_pages_and_generate_nav_points()
+        self._create_content_pages(self._html_content)
+        self._nav_points = self._generate_nav_points(self._html_content)
         self._create_table_of_contents()
         self._create_metadata()
 
@@ -64,22 +74,37 @@ class EpubGenerator(object):
             file_handler.write(title_page)
         self._book_file_paths.append(file_path)
 
-    def _create_content_pages_and_generate_nav_points(self):
-        pass
-        # for counter, raw_content in enumerate(self._html_content):
-        #     xhtml_content = self._create_content_page(raw_content)
-        #     file_name = "chapter{}.xhtml".format(counter+1)
-        #     self._chapter_file_names.append(file_name)
-        #     file_path = "{}/OEBPS/{}".format(self._workspace_folder, file_name)
-        #     with open(file_path, "w", encoding='utf-8') as file_handler:
-        #         file_handler.write(xhtml_content)
-        #     title = raw_content[0].replace("# ", "")
-        #     nav_point = self._templates["navpoint"]
-        #     nav_point = nav_point.format(nav_id="chapter{}".format(counter+1),
-        #                                  order_number=counter+1,
-        #                                  nav_name=title,
-        #                                  file_name=file_name)
-        #     self._nav_points += nav_point
+    def _create_content_pages(self, content, node_name=""):
+        try:
+            for key, value in content.items():
+                self._create_content_pages(value, key)
+        except AttributeError:
+            xhtml_content = content
+            file_name = "{}.xhtml".format(node_name)
+            self._chapter_file_names.append(file_name)
+            file_path = "{}/OEBPS/{}".format(self._workspace_folder, file_name)
+            with open(file_path, "w", encoding='utf-8') as file_handler:
+                file_handler.write(xhtml_content)
+
+    def _generate_nav_points(self, content, level=0):
+        nav_points = []
+        try:
+            items = content.items()
+        except:
+            return ""
+        for key, value in items:
+            nav_point = self._templates["navpoint"]
+            order_number = self._nav_counter
+            sub_points = self._generate_nav_points(value, level + 1)
+            if sub_points:
+                sub_points = "\n{}".format(sub_points)
+                file_name = ""
+            else:
+                file_name = "{}.xhtml".format(key)
+            nav_point = nav_point.format(nav_id=key, order_number=order_number, nav_name=key, file_name=file_name,
+                                         spacing=(level+1)*4*" ", sub_points=sub_points)
+            nav_points.append(nav_point)
+        return "\n".join(nav_points)
 
     def _create_content_page(self, raw_content):
         pass
