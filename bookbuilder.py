@@ -1,11 +1,12 @@
 from os import getcwd, listdir
 from os.path import isdir, join, splitext
-# from markdown2 import markdown
+from markdown2 import Markdown
 
 
 class BookBuilder(object):
     def __init__(self, input_folder_path, output_file_path_without_extension):
         self._input_folder_path = self._clean_folder_path(input_folder_path)
+        self._markdown_converter = Markdown()
 
     @staticmethod
     def _clean_folder_path(input_folder_path):
@@ -18,11 +19,8 @@ class BookBuilder(object):
         return input_folder_path
 
     def convert(self):
-        self._load_content()
-
-    def _load_content(self):
         content = self._process_folder(self._input_folder_path)
-        return content
+        html_content = self._convert_content_to_html(content)
 
     def _process_folder(self, folder_path):
         content = {}
@@ -48,3 +46,12 @@ class BookBuilder(object):
         with open(full_path_to_item) as file_handler:
             file_content = file_handler.read()
         return file_content
+
+    def _convert_content_to_html(self, content):
+        html_content = {}
+        try:
+            for key, value in content.items():
+                html_content[key] = self._convert_content_to_html(value)
+        except AttributeError:
+            return self._markdown_converter.convert(content)
+        return html_content
