@@ -1,11 +1,14 @@
+from json import load
 from os import getcwd, listdir
 from os.path import isdir, join, splitext
 from markdown2 import Markdown
+from epubgenerator import EpubGenerator
 
 
 class BookBuilder(object):
     def __init__(self, input_folder_path, output_file_path_without_extension):
         self._input_folder_path = self._clean_folder_path(input_folder_path)
+        self._output_file_path_without_extension = output_file_path_without_extension
         self._markdown_converter = Markdown()
 
     @staticmethod
@@ -20,12 +23,17 @@ class BookBuilder(object):
 
     def convert(self):
         content = self._process_folder(self._input_folder_path)
+        metadata = self._read_metadata()
         html_content = self._convert_content_to_html(content)
+        EpubGenerator(self._output_file_path_without_extension, metadata, html_content).generate()
 
     def _process_folder(self, folder_path):
+        exclusions = ["meta"]
         content = {}
         folder_content = listdir(folder_path)
         for node_name in folder_content:
+            if node_name in exclusions:
+                continue
             full_path_to_item = join(folder_path, node_name)
             if isdir(full_path_to_item):
                 folder_content = self._process_folder(full_path_to_item)
@@ -46,6 +54,11 @@ class BookBuilder(object):
         with open(full_path_to_item) as file_handler:
             file_content = file_handler.read()
         return file_content
+
+    def _read_metadata(self):
+        with open("{}/.metadata.json".format(self._input_folder_path), encoding='utf-8') as file_handler:
+            raw_metadata = load(file_handler)
+        return raw_metadata
 
     def _convert_content_to_html(self, content):
         html_content = {}

@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+    <dc:title>{title}</dc:title>
+    <dc:creator opf:role="aut">{author}</dc:creator>
+    <dc:identifier opf:scheme="uuid" id="uuid_id">{uuid}</dc:identifier>
+    <dc:language>{language}</dc:language>
+  </metadata>
+  <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
+    <item id="style" href="stylesheet.css" media-type="text/css" />
+    <item id="title" href="title.xhtml" media-type="application/xhtml+xml" />
+{manifest}
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="title" />
+{spine}
+  </spine>
+  <guide>
+    <reference type="cover" title="title" href="title.xhtml"/>
+    <reference type="text" title="Chapter1" href="chapter1.xhtml"/>
+  </guide>
+</package>
