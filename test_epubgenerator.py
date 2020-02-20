@@ -19,7 +19,8 @@ class TestEpubGenerator(TestCase):
         self.e = EpubGenerator("sample/output/unit_test", metadata, html_content)
 
     def test__load_templates(self):
-        self.fail()
+        self.e._load_templates()
+        self.assertEqual(["content", "metadata", "navpoint", "title", "toc.ncx"], list(self.e._templates))
 
     def test__create_folders(self):
         self.e._create_folders()
