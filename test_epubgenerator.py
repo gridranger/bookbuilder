@@ -20,7 +20,8 @@ class TestEpubGenerator(TestCase):
 
     def test__load_templates(self):
         self.e._load_templates()
-        self.assertEqual(["content", "metadata", "navpoint", "title", "toc.ncx"], list(self.e._templates))
+        expected_result = ["content", "metadata", "navpoint", "title", "toc.ncx"]
+        self.assertEqual(expected_result, list(self.e._templates.keys()))
 
     def test__create_folders(self):
         self.e._create_folders()
