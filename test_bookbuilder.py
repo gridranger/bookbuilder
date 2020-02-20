@@ -41,3 +41,8 @@ class TestBookBuilder(TestCase):
                            Chapter("Part 2", 0, "<h1>Part 2</h1>"),
                            Chapter("chapter 3", 1, "<h1>My third chapter</h1>\n\n<p>Lorem ipsum...</p>\n")]
         self.assertTrue(expected_result[i] == self.sample_flat_structure[i] for i in range(len(self.sample_flat_structure)))
+
+    def test__demote_headings(self):
+        self.b._demote_headings(self.sample_flat_structure)
+        self.assertTrue(self.sample_flat_structure[3].content.startswith("# "))
+        self.assertTrue(self.sample_flat_structure[4].content.startswith("## "))

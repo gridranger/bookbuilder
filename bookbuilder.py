@@ -1,6 +1,7 @@
 from json import load
 from os import getcwd, listdir
 from os.path import isdir, join, splitext
+from re import compile as re_compile, MULTILINE
 from markdown2 import Markdown
 from chapter import Chapter
 from epubgenerator import EpubGenerator
@@ -25,6 +26,7 @@ class BookBuilder(object):
     def convert(self):
         content = self._process_folder(self._input_folder_path)
         metadata = self._read_metadata()
+        self._demote_headings(content)
         self._convert_content_to_html(content)
         EpubGenerator(self._output_file_path_without_extension, metadata, content).generate()
 
@@ -60,6 +62,12 @@ class BookBuilder(object):
         with open("{}/.metadata.json".format(self._input_folder_path), encoding='utf-8') as file_handler:
             raw_metadata = load(file_handler)
         return raw_metadata
+
+    def _demote_headings(self, content):
+        pattern = re_compile("^(#)", MULTILINE)
+        for chapter in content:
+            demotion_level = chapter.level + 1
+            chapter.content = pattern.sub(demotion_level*"#", chapter.content)
 
     def _convert_content_to_html(self, content):
         for chapter in content:
