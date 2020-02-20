@@ -2,12 +2,13 @@ from os import makedirs
 from os.path import dirname, realpath
 from shutil import copyfile, rmtree
 from uuid import uuid1
+from zipfile import ZipFile
 from navpointgenerator import NavPointGenerator
 
 
 class EpubGenerator(object):
     def __init__(self, output_file_path_without_extension, metadata, html_content):
-        self._output_file_path_without_extension = output_file_path_without_extension
+        self._output_file_path = "{}.epub".format(output_file_path_without_extension)
         self._metadata = metadata
         self._metadata["uuid"] = uuid1()
         self._html_content = html_content
@@ -30,9 +31,11 @@ class EpubGenerator(object):
         self._create_workspace()
         self._create_title_page()
         self._create_content_pages(self._html_content)
-        self._generate_nav_points(self._html_content)
+        self._create_nav_points()
         self._create_table_of_contents()
         self._create_metadata()
+        self._compress_workspace()
+        self._remove_workspace()
 
     def _load_templates(self):
         templates = ["content", "metadata", "navpoint", "title", "toc.ncx"]
@@ -83,7 +86,7 @@ class EpubGenerator(object):
             with open(file_path, "w", encoding='utf-8') as file_handler:
                 file_handler.write(chapter.content)
 
-    def _generate_nav_points(self):
+    def _create_nav_points(self):
         nav_point_generator = NavPointGenerator(self._html_content, self._templates["navpoint"])
         self._nav_points = nav_point_generator.get_nav_points()
 
@@ -94,9 +97,9 @@ class EpubGenerator(object):
         text_reference = ""
         for chapter in self._html_content:
             new_manifest_line = """    <item id="{}" href="{}" media-type="application/xhtml+xml" />"""
-            manifest.append(new_manifest_line.format(chapter.node_name, chapter.xhtml_name))
+            manifest.append(new_manifest_line.format(chapter.slug_name, chapter.xhtml_name))
             new_spine_line = """    <itemref idref="{}" />"""
-            spine.append(new_spine_line.format(chapter.node_name))
+            spine.append(new_spine_line.format(chapter.slug_name))
             if not text_reference and chapter.body:
                 text_reference = """<reference type="text" title="{}" href="{}"/>""".format(chapter.node_name,
                                                                                             chapter.xhtml_name)
@@ -117,3 +120,15 @@ class EpubGenerator(object):
         with open(file_path, "w", encoding='utf-8') as file_handler:
             file_handler.write(toc)
         self._book_file_paths.append(file_path)
+
+    def _compress_workspace(self):
+        file_list = []
+        file_list += self._book_file_paths
+        for chapter_file_name in self._chapter_file_names:
+            file_list.append("{}/OEBPS/{}".format(self._workspace_folder, chapter_file_name))
+        with ZipFile(self._output_file_path, 'w') as file_handler:
+            for file_path in file_list:
+                file_handler.write(file_path, file_path.replace(self._workspace_folder, ""))
+
+    def _remove_workspace(self):
+        rmtree(self._workspace_folder)

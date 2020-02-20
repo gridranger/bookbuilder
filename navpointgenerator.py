@@ -14,7 +14,7 @@ class NavPointGenerator(object):
         for index, chapter in enumerate(self._content):
             self._actual_depth = chapter.level
             cursor = self._get_inner_cursor_placeholder_value(index)
-            nav_point = self._template.format(nav_id=chapter.node_name, order_number=index, nav_name=chapter.node_name,
+            nav_point = self._template.format(nav_id=chapter.slug_name, order_number=index, nav_name=chapter.node_name,
                                               file_name=chapter.xhtml_name, spacing=(chapter.level + 1) * 4 * " ",
                                               cursor=cursor)
             new_mid_cursor_should_be_added = self._check_if_new_mid_cursor_is_required(index)

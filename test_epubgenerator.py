@@ -66,27 +66,27 @@ class TestEpubGenerator(TestCase):
         self.e._load_templates()
         self.e._create_folders()
         self.e._create_content_pages(self.e._html_content)
-        with open("sample/output/ws/OEBPS/chapter 3.xhtml") as file_handler:
+        with open("sample/output/ws/OEBPS/chapter_3.xhtml") as file_handler:
             self.assertTrue("<p>Lorem ipsum...</p>" in file_handler.read())
 
-    def test__generate_nav_points(self):
-        expected_result = """    <navPoint id="Part 1" playOrder="0">
-        <navLabel><text>Part 1</text></navLabel><content src="Part 1.xhtml"/>
-        <navPoint id="chapter 1" playOrder="1">
-            <navLabel><text>chapter 1</text></navLabel><content src="chapter 1.xhtml"/>
+    def test__create_nav_points(self):
+        expected_result = """    <navPoint id="part_1" playOrder="0">
+        <navLabel><text>Part 1</text></navLabel><content src="part_1.xhtml"/>
+        <navPoint id="chapter_1" playOrder="1">
+            <navLabel><text>chapter 1</text></navLabel><content src="chapter_1.xhtml"/>
         </navPoint>
-        <navPoint id="chapter 2" playOrder="2">
-            <navLabel><text>chapter 2</text></navLabel><content src="chapter 2.xhtml"/>
+        <navPoint id="chapter_2" playOrder="2">
+            <navLabel><text>chapter 2</text></navLabel><content src="chapter_2.xhtml"/>
         </navPoint>
     </navPoint>
-    <navPoint id="Part 2" playOrder="3">
-        <navLabel><text>Part 2</text></navLabel><content src="Part 2.xhtml"/>
-        <navPoint id="chapter 3" playOrder="4">
-            <navLabel><text>chapter 3</text></navLabel><content src="chapter 3.xhtml"/>
+    <navPoint id="part_2" playOrder="3">
+        <navLabel><text>Part 2</text></navLabel><content src="part_2.xhtml"/>
+        <navPoint id="chapter_3" playOrder="4">
+            <navLabel><text>chapter 3</text></navLabel><content src="chapter_3.xhtml"/>
         </navPoint>
     </navPoint>"""
         self.e._load_templates()
-        self.e._generate_nav_points()
+        self.e._create_nav_points()
         self.assertEqual(expected_result, self.e._nav_points)
 
     def test__create_metadata(self):
@@ -106,23 +106,23 @@ class TestEpubGenerator(TestCase):
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
     <item id="style" href="stylesheet.css" media-type="text/css" />
     <item id="title" href="title.xhtml" media-type="application/xhtml+xml" />
-    <item id="Part 1" href="Part 1.xhtml" media-type="application/xhtml+xml" />
-    <item id="chapter 1" href="chapter 1.xhtml" media-type="application/xhtml+xml" />
-    <item id="chapter 2" href="chapter 2.xhtml" media-type="application/xhtml+xml" />
-    <item id="Part 2" href="Part 2.xhtml" media-type="application/xhtml+xml" />
-    <item id="chapter 3" href="chapter 3.xhtml" media-type="application/xhtml+xml" />
+    <item id="part_1" href="part_1.xhtml" media-type="application/xhtml+xml" />
+    <item id="chapter_1" href="chapter_1.xhtml" media-type="application/xhtml+xml" />
+    <item id="chapter_2" href="chapter_2.xhtml" media-type="application/xhtml+xml" />
+    <item id="part_2" href="part_2.xhtml" media-type="application/xhtml+xml" />
+    <item id="chapter_3" href="chapter_3.xhtml" media-type="application/xhtml+xml" />
   </manifest>
   <spine toc="ncx">
     <itemref idref="title" />
-    <itemref idref="Part 1" />
-    <itemref idref="chapter 1" />
-    <itemref idref="chapter 2" />
-    <itemref idref="Part 2" />
-    <itemref idref="chapter 3" />
+    <itemref idref="part_1" />
+    <itemref idref="chapter_1" />
+    <itemref idref="chapter_2" />
+    <itemref idref="part_2" />
+    <itemref idref="chapter_3" />
   </spine>
   <guide>
     <reference type="cover" title="title" href="title.xhtml"/>
-    <reference type="text" title="chapter 1" href="chapter 1.xhtml"/>
+    <reference type="text" title="chapter 1" href="chapter_1.xhtml"/>
   </guide>
 </package>
 """
@@ -132,5 +132,15 @@ class TestEpubGenerator(TestCase):
     def test__create_table_of_contents(self):
         self.e._load_templates()
         self.e._create_folders()
-        self.e._generate_nav_points()
+        self.e._create_nav_points()
         self.e._create_table_of_contents()
+
+    def test__compress_workspace(self):
+        self.e._create_workspace()
+        self.e._compress_workspace()
+        self.assertTrue(exists("sample/output/unit_test.epub"))
+
+    def test__remove_workspace(self):
+        self.e._create_workspace()
+        self.e._remove_workspace()
+        self.assertFalse(exists("sample/output/ws"))
