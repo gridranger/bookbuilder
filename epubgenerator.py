@@ -1,6 +1,7 @@
 from os import makedirs
 from os.path import dirname, realpath
 from shutil import copyfile, rmtree
+from navpointgenerator import NavPointGenerator
 
 
 class EpubGenerator(object):
@@ -80,34 +81,9 @@ class EpubGenerator(object):
             with open(file_path, "w", encoding='utf-8') as file_handler:
                 file_handler.write(chapter.content)
 
-    def _generate_nav_points(self, content, level=0):
-        closing_cursor = "\n{cursor}"
-        nav_points = "{cursor}"
-        actual_depth = 0
-        for index, chapter in enumerate(content):
-            actual_depth = chapter.level
-            try:
-                if content[index+1].level > actual_depth:
-                    cursor = closing_cursor
-                else:
-                    cursor = ""
-            except IndexError:
-                cursor = ""
-            nav_point = self._templates["navpoint"].format(nav_id=chapter.node_name, order_number=index,
-                                                           nav_name=chapter.node_name, file_name=chapter.xhtml_name,
-                                                           spacing=(chapter.level+1)*4*" ", cursor=cursor)
-            try:
-                if content[index+1].level == actual_depth:
-                    nav_point += closing_cursor
-            except IndexError:
-                pass
-            nav_points = nav_points.format(cursor=nav_point)
-            try:
-                if content[index+1] and "{cursor}" not in nav_points:
-                    nav_points += closing_cursor
-            except IndexError:
-                pass
-        return nav_points
+    def _generate_nav_points(self, content):
+        nav_point_generator = NavPointGenerator(content, self._templates["navpoint"])
+        return nav_point_generator.get_nav_points()
 
     def _create_content_page(self, raw_content):
         pass
