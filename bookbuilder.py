@@ -11,7 +11,7 @@ class BookBuilder(object):
     def __init__(self, input_folder_path, output_file_path_without_extension):
         self._input_folder_path = self._clean_folder_path(input_folder_path)
         self._output_file_path_without_extension = output_file_path_without_extension
-        self._markdown_converter = Markdown()
+        self._markdown_converter = Markdown(extras={"smarty-pants": True})
 
     @staticmethod
     def _clean_folder_path(input_folder_path):
@@ -28,6 +28,7 @@ class BookBuilder(object):
         metadata = self._read_metadata()
         self._demote_headings(content)
         self._convert_content_to_html(content)
+        self._post_html_custom_formattings(content)
         EpubGenerator(self._output_file_path_without_extension, metadata, content).generate()
 
     def _process_folder(self, folder_path, level=0):
@@ -56,6 +57,7 @@ class BookBuilder(object):
             return ""
         with open(full_path_to_item, encoding='utf-8') as file_handler:
             file_content = file_handler.read()
+            file_content = file_content.replace("\ufeff", "")
         return file_content
 
     def _read_metadata(self):
@@ -72,3 +74,13 @@ class BookBuilder(object):
     def _convert_content_to_html(self, content):
         for chapter in content:
             chapter.content = self._markdown_converter.convert(chapter.content)
+
+    def _post_html_custom_formattings(self, content):
+        for chapter in content:
+            # Hungarian quotes
+            chapter.content = chapter.content.replace("&#8220;", "&#8222;")
+            # Custom format roles for "A rajzolólány portréja"
+            chapter.content = chapter.content.replace("<p>András: ",
+                                                      """<p class="msn"><span style="color: grey;">András üzenete:<span><br/>""")
+            chapter.content = chapter.content.replace("<p>Erika: ",
+                                                      """<p class="msn"><span style="color: grey;">Erika üzenete:<span><br/>""")
