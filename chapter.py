@@ -5,7 +5,7 @@ class Chapter(object):
     def __init__(self, node_name, level, content=""):
         self.node_name = node_name
         self.level = level
-        self.content = "# {1}\n".format(level+1, node_name.capitalize()) if not content else content
+        self.content = "# {1}\n".format(level+1, node_name) if not content else content
         self.body = True if content else False
 
     @property

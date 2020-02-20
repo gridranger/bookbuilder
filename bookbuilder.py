@@ -54,7 +54,7 @@ class BookBuilder(object):
         extension = splitext(full_path_to_item)[1]
         if extension != ".md":
             return ""
-        with open(full_path_to_item) as file_handler:
+        with open(full_path_to_item, encoding='utf-8') as file_handler:
             file_content = file_handler.read()
         return file_content
 
