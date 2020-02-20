@@ -77,10 +77,5 @@ class BookBuilder(object):
 
     def _post_html_custom_formattings(self, content):
         for chapter in content:
-            # Hungarian quotes
-            chapter.content = chapter.content.replace("&#8220;", "&#8222;")
-            # Custom format roles for "A rajzolólány portréja"
-            chapter.content = chapter.content.replace("<p>András: ",
-                                                      """<p class="msn"><span style="color: grey;">András üzenete:<span><br/>""")
-            chapter.content = chapter.content.replace("<p>Erika: ",
-                                                      """<p class="msn"><span style="color: grey;">Erika üzenete:<span><br/>""")
+            pass
+            # custom format could be put here
