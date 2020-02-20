@@ -23,10 +23,10 @@ class BookBuilder(object):
         return input_folder_path
 
     def convert(self):
-        content = self._process_folder(self._input_folder_path)
+        content = self._process_folder_v2(self._input_folder_path)
         metadata = self._read_metadata()
-        html_content = self._convert_content_to_html(content)
-        EpubGenerator(self._output_file_path_without_extension, metadata, html_content).generate()
+        self._convert_content_to_html_v2(content)
+        EpubGenerator(self._output_file_path_without_extension, metadata, content).generate()
 
     def _process_folder(self, folder_path):
         exclusions = ["meta"]
@@ -88,3 +88,7 @@ class BookBuilder(object):
         except AttributeError:
             return self._markdown_converter.convert(content)
         return html_content
+
+    def _convert_content_to_html_v2(self, content):
+        for chapter in content:
+            chapter.content = self._markdown_converter.convert(chapter.content)
