@@ -30,7 +30,7 @@ class EpubGenerator(object):
         self._load_templates()
         self._create_workspace()
         self._create_title_page()
-        self._create_content_pages(self._html_content)
+        self._create_content_pages()
         self._create_nav_points()
         self._create_table_of_contents()
         self._create_metadata()
@@ -80,11 +80,13 @@ class EpubGenerator(object):
             file_handler.write(title_page)
         self._book_file_paths.append(file_path)
 
-    def _create_content_pages(self, content):
-        for chapter in content:
+    def _create_content_pages(self):
+        for chapter in self._html_content:
             file_path = "{}/OEBPS/{}".format(self._workspace_folder, chapter.xhtml_name)
+            file_content = self._templates["content"].format(title=chapter.node_name, text=chapter.content)
             with open(file_path, "w", encoding='utf-8') as file_handler:
-                file_handler.write(chapter.content)
+                file_handler.write(file_content)
+            self._book_file_paths.append(file_path)
 
     def _create_nav_points(self):
         nav_point_generator = NavPointGenerator(self._html_content, self._templates["navpoint"])

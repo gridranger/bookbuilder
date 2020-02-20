@@ -65,7 +65,7 @@ class TestEpubGenerator(TestCase):
     def test__create_content_pages(self):
         self.e._load_templates()
         self.e._create_folders()
-        self.e._create_content_pages(self.e._html_content)
+        self.e._create_content_pages()
         with open("sample/output/ws/OEBPS/chapter_3.xhtml") as file_handler:
             self.assertTrue("<p>Lorem ipsum...</p>" in file_handler.read())
 
