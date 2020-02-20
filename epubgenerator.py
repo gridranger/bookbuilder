@@ -30,7 +30,7 @@ class EpubGenerator(object):
         self._create_workspace()
         self._create_title_page()
         self._create_content_pages(self._html_content)
-        self._nav_points = self._generate_nav_points(self._html_content)
+        self._generate_nav_points(self._html_content)
         self._create_table_of_contents()
         self._create_metadata()
 
@@ -83,9 +83,9 @@ class EpubGenerator(object):
             with open(file_path, "w", encoding='utf-8') as file_handler:
                 file_handler.write(chapter.content)
 
-    def _generate_nav_points(self, content):
-        nav_point_generator = NavPointGenerator(content, self._templates["navpoint"])
-        return nav_point_generator.get_nav_points()
+    def _generate_nav_points(self):
+        nav_point_generator = NavPointGenerator(self._html_content, self._templates["navpoint"])
+        self._nav_points = nav_point_generator.get_nav_points()
 
     def _create_metadata(self):
         file_path = "{}/OEBPS/metadata.opf".format(self._workspace_folder)
@@ -106,4 +106,14 @@ class EpubGenerator(object):
                                    manifest="\n".join(manifest), spine="\n".join(spine), text_reference=text_reference)
         with open(file_path, "w", encoding='utf-8') as file_handler:
             file_handler.write(metadata)
+        self._book_file_paths.append(file_path)
+
+    def _create_table_of_contents(self):
+        file_path = "{}/OEBPS/toc.ncx".format(self._workspace_folder)
+        toc = self._templates["toc.ncx"]
+        toc = toc.format(uuid=self._metadata["uuid"],
+                         title=self._metadata["title"],
+                         nav_map=self._nav_points)
+        with open(file_path, "w", encoding='utf-8') as file_handler:
+            file_handler.write(toc)
         self._book_file_paths.append(file_path)

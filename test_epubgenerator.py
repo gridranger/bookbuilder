@@ -86,8 +86,8 @@ class TestEpubGenerator(TestCase):
         </navPoint>
     </navPoint>"""
         self.e._load_templates()
-        result = self.e._generate_nav_points(self.e._html_content)
-        self.assertEqual(expected_result, result)
+        self.e._generate_nav_points()
+        self.assertEqual(expected_result, self.e._nav_points)
 
     def test__create_metadata(self):
         self.e._metadata["uuid"] = "dummy"
@@ -128,3 +128,9 @@ class TestEpubGenerator(TestCase):
 """
         with open("sample/output/ws/OEBPS/metadata.opf") as file_handler:
             self.assertEqual(expected_result, file_handler.read())
+
+    def test__create_table_of_contents(self):
+        self.e._load_templates()
+        self.e._create_folders()
+        self.e._generate_nav_points()
+        self.e._create_table_of_contents()
