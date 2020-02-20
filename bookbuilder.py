@@ -83,7 +83,7 @@ class BookBuilder(object):
             chapter.content = chapter.content.replace("&#8220;", "&#8222;")  # Hungarian quotation mark
             # Custom format roles for "A rajzolólány portréja"
             chapter.content = chapter.content.replace("<p>András: ",
-                                                      """<p class="msn"><span style="color: grey;">András üzenete:<span><br/>""")
+                                                      """<p class="msn"><span style="color: grey;">András üzenete:</span><br/>""")
             chapter.content = chapter.content.replace("<p>Erika: ",
-                                                      """<p class="msn"><span style="color: grey;">Erika üzenete:<span><br/>""")
+                                                      """<p class="msn"><span style="color: grey;">Erika üzenete:</span><br/>""")
             # custom format could be put here
