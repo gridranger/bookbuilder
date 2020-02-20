@@ -3,6 +3,7 @@ class Chapter(object):
         self.node_name = node_name
         self.level = level
         self.content = "# {1}\n".format(level+1, node_name.capitalize()) if not content else content
+        self.body = True if content else False
 
     @property
     def xhtml_name(self):

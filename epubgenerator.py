@@ -1,6 +1,7 @@
 from os import makedirs
 from os.path import dirname, realpath
 from shutil import copyfile, rmtree
+from uuid import uuid1
 from navpointgenerator import NavPointGenerator
 
 
@@ -8,6 +9,7 @@ class EpubGenerator(object):
     def __init__(self, output_file_path_without_extension, metadata, html_content):
         self._output_file_path_without_extension = output_file_path_without_extension
         self._metadata = metadata
+        self._metadata["uuid"] = uuid1()
         self._html_content = html_content
         self._templates_folder = "{}/templates".format(dirname(realpath(__file__)))
         self._workspace_folder = "{}/ws".format(dirname(output_file_path_without_extension))
@@ -85,20 +87,23 @@ class EpubGenerator(object):
         nav_point_generator = NavPointGenerator(content, self._templates["navpoint"])
         return nav_point_generator.get_nav_points()
 
-    def _create_content_page(self, raw_content):
-        pass
-        # title = ""
-        # text = ""
-        # for line in raw_content:
-        #     if line.startswith("# ") and title == "":
-        #         title = line.replace("# ", "")
-        #     elif line.startswith("# "):
-        #         raise RuntimeError("More than one title defined in a chapter!")
-        #     elif line.startswith("András:") or line.startswith("Erika:"):
-        #         line = line.replace(": ", " üzenete:</span><br/>")
-        #         text += """  <p class="msn"><span style="color: grey;">{}</p>\n""".format(line)
-        #     else:
-        #         text += "  <p>{}</p>\n".format(line)
-        # content_page = self._templates["content"]
-        # content_page = content_page.format(title=title, text=text)
-        # return content_page
+    def _create_metadata(self):
+        file_path = "{}/OEBPS/metadata.opf".format(self._workspace_folder)
+        manifest = []
+        spine = []
+        text_reference = ""
+        for chapter in self._html_content:
+            new_manifest_line = """    <item id="{}" href="{}" media-type="application/xhtml+xml" />"""
+            manifest.append(new_manifest_line.format(chapter.node_name, chapter.xhtml_name))
+            new_spine_line = """    <itemref idref="{}" />"""
+            spine.append(new_spine_line.format(chapter.node_name))
+            if not text_reference and chapter.body:
+                text_reference = """<reference type="text" title="{}" href="{}"/>""".format(chapter.node_name,
+                                                                                            chapter.xhtml_name)
+        metadata = self._templates["metadata"]
+        metadata = metadata.format(title=self._metadata["title"], author=self._metadata["author"],
+                                   uuid=self._metadata["uuid"], language=self._metadata["language"],
+                                   manifest="\n".join(manifest), spine="\n".join(spine), text_reference=text_reference)
+        with open(file_path, "w", encoding='utf-8') as file_handler:
+            file_handler.write(metadata)
+        self._book_file_paths.append(file_path)
