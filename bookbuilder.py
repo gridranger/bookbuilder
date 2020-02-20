@@ -2,6 +2,7 @@ from json import load
 from os import getcwd, listdir
 from os.path import isdir, join, splitext
 from markdown2 import Markdown
+from chapter import Chapter
 from epubgenerator import EpubGenerator
 
 
@@ -44,6 +45,25 @@ class BookBuilder(object):
                 if file_content:
                     file_name_without_extension = splitext(node_name)[0]
                     content[file_name_without_extension] = file_content
+        return content
+
+    def _process_folder_v2(self, folder_path, level=0):
+        exclusions = ["meta"]
+        content = []
+        folder_content = listdir(folder_path)
+        for node_name in folder_content:
+            if node_name in exclusions:
+                continue
+            full_path_to_item = join(folder_path, node_name)
+            if isdir(full_path_to_item):
+                content.append(Chapter(node_name, level))
+                folder_content = self._process_folder_v2(full_path_to_item, level=level+1)
+                content += folder_content
+            else:
+                file_content = self._process_file(full_path_to_item)
+                if file_content:
+                    file_name_without_extension = splitext(node_name)[0]
+                    content.append(Chapter(file_name_without_extension, level, file_content))
         return content
 
     @staticmethod
