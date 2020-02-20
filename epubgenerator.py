@@ -74,37 +74,40 @@ class EpubGenerator(object):
             file_handler.write(title_page)
         self._book_file_paths.append(file_path)
 
-    def _create_content_pages(self, content, node_name=""):
-        try:
-            for key, value in content.items():
-                self._create_content_pages(value, key)
-        except AttributeError:
-            xhtml_content = content
-            file_name = "{}.xhtml".format(node_name)
-            self._chapter_file_names.append(file_name)
-            file_path = "{}/OEBPS/{}".format(self._workspace_folder, file_name)
+    def _create_content_pages(self, content):
+        for chapter in content:
+            file_path = "{}/OEBPS/{}".format(self._workspace_folder, chapter.xhtml_name)
             with open(file_path, "w", encoding='utf-8') as file_handler:
-                file_handler.write(xhtml_content)
+                file_handler.write(chapter.content)
 
     def _generate_nav_points(self, content, level=0):
-        nav_points = []
-        try:
-            items = content.items()
-        except:
-            return ""
-        for key, value in items:
-            nav_point = self._templates["navpoint"]
-            order_number = self._nav_counter
-            sub_points = self._generate_nav_points(value, level + 1)
-            if sub_points:
-                sub_points = "\n{}".format(sub_points)
-                file_name = ""
-            else:
-                file_name = "{}.xhtml".format(key)
-            nav_point = nav_point.format(nav_id=key, order_number=order_number, nav_name=key, file_name=file_name,
-                                         spacing=(level+1)*4*" ", sub_points=sub_points)
-            nav_points.append(nav_point)
-        return "\n".join(nav_points)
+        closing_cursor = "\n{cursor}"
+        nav_points = "{cursor}"
+        actual_depth = 0
+        for index, chapter in enumerate(content):
+            actual_depth = chapter.level
+            try:
+                if content[index+1].level > actual_depth:
+                    cursor = closing_cursor
+                else:
+                    cursor = ""
+            except IndexError:
+                cursor = ""
+            nav_point = self._templates["navpoint"].format(nav_id=chapter.node_name, order_number=index,
+                                                           nav_name=chapter.node_name, file_name=chapter.xhtml_name,
+                                                           spacing=(chapter.level+1)*4*" ", cursor=cursor)
+            try:
+                if content[index+1].level == actual_depth:
+                    nav_point += closing_cursor
+            except IndexError:
+                pass
+            nav_points = nav_points.format(cursor=nav_point)
+            try:
+                if content[index+1] and "{cursor}" not in nav_points:
+                    nav_points += closing_cursor
+            except IndexError:
+                pass
+        return nav_points
 
     def _create_content_page(self, raw_content):
         pass

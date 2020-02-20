@@ -2,7 +2,11 @@ class Chapter(object):
     def __init__(self, node_name, level, content=""):
         self.node_name = node_name
         self.level = level
-        self.content = "<h{0}>{1}</h{0}>".format(level+1, node_name.capitalize()) if not content else content
+        self.content = "# {1}\n".format(level+1, node_name.capitalize()) if not content else content
+
+    @property
+    def xhtml_name(self):
+        return "{}.xhtml".format(self.node_name)
 
     def __eq__(self, other):
         try:

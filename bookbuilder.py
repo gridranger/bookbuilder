@@ -23,31 +23,12 @@ class BookBuilder(object):
         return input_folder_path
 
     def convert(self):
-        content = self._process_folder_v2(self._input_folder_path)
+        content = self._process_folder(self._input_folder_path)
         metadata = self._read_metadata()
-        self._convert_content_to_html_v2(content)
+        self._convert_content_to_html(content)
         EpubGenerator(self._output_file_path_without_extension, metadata, content).generate()
 
-    def _process_folder(self, folder_path):
-        exclusions = ["meta"]
-        content = {}
-        folder_content = listdir(folder_path)
-        for node_name in folder_content:
-            if node_name in exclusions:
-                continue
-            full_path_to_item = join(folder_path, node_name)
-            if isdir(full_path_to_item):
-                folder_content = self._process_folder(full_path_to_item)
-                if folder_content:
-                    content[node_name] = folder_content
-            else:
-                file_content = self._process_file(full_path_to_item)
-                if file_content:
-                    file_name_without_extension = splitext(node_name)[0]
-                    content[file_name_without_extension] = file_content
-        return content
-
-    def _process_folder_v2(self, folder_path, level=0):
+    def _process_folder(self, folder_path, level=0):
         exclusions = ["meta"]
         content = []
         folder_content = listdir(folder_path)
@@ -57,7 +38,7 @@ class BookBuilder(object):
             full_path_to_item = join(folder_path, node_name)
             if isdir(full_path_to_item):
                 content.append(Chapter(node_name, level))
-                folder_content = self._process_folder_v2(full_path_to_item, level=level+1)
+                folder_content = self._process_folder(full_path_to_item, level=level + 1)
                 content += folder_content
             else:
                 file_content = self._process_file(full_path_to_item)
@@ -81,14 +62,5 @@ class BookBuilder(object):
         return raw_metadata
 
     def _convert_content_to_html(self, content):
-        html_content = {}
-        try:
-            for key, value in content.items():
-                html_content[key] = self._convert_content_to_html(value)
-        except AttributeError:
-            return self._markdown_converter.convert(content)
-        return html_content
-
-    def _convert_content_to_html_v2(self, content):
         for chapter in content:
             chapter.content = self._markdown_converter.convert(chapter.content)
