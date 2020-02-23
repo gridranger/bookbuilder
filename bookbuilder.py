@@ -11,7 +11,8 @@ class BookBuilder(object):
     def __init__(self, input_folder_path, output_file_path_without_extension):
         self._input_folder_path = self._clean_folder_path(input_folder_path)
         self._output_file_path_without_extension = output_file_path_without_extension
-        self._markdown_converter = Markdown(extras={"smarty-pants": True})
+        self._markdown_converter = Markdown(extras=["smarty-pants", "footnotes"],
+                                            footnote_title="Vissza ide: %d", footnote_return_symbol="&#8617;")
 
     @staticmethod
     def _clean_folder_path(input_folder_path):

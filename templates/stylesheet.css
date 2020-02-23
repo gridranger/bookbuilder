@@ -19,6 +19,10 @@ h1 {
   text-align: center;
 }
 
+.footnotes p {
+  text-indent: 0;
+}
+
 p.book_title {
   text-indent: 0;
   text-align: center;
