@@ -75,7 +75,11 @@ class EpubGenerator(object):
     def _create_title_page(self):
         file_path = "{}/OEBPS/title.xhtml".format(self._workspace_folder)
         title_page  = self._templates["title"]
-        title_page = title_page.format(title=self._metadata["title"], author=self._metadata["author"])
+        if "ISBN" in self._metadata:
+            isbn_line = """<p class="book_meta">ISBN {isbn}</p>""".format(isbn=self._metadata["ISBN"])
+        else:
+            isbn_line = ""
+        title_page = title_page.format(title=self._metadata["title"], author=self._metadata["author"], isbn=isbn_line)
         with open(file_path, "w", encoding='utf-8') as file_handler:
             file_handler.write(title_page)
         self._book_file_paths.append(file_path)
