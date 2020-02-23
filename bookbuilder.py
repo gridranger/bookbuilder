@@ -79,5 +79,6 @@ class BookBuilder(object):
 
     def _post_html_custom_formattings(self, content):
         for chapter in content:
-            pass
+            # General Hungarian
+            chapter.content = chapter.content.replace("&#8220;", "&#8222;")  # Hungarian quotation mark
             # custom format could be put here
