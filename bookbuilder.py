@@ -40,6 +40,8 @@ class BookBuilder(object):
                 continue
             full_path_to_item = join(folder_path, node_name)
             if isdir(full_path_to_item):
+                if not any(subnode_name.endswith(".md") for subnode_name in listdir(full_path_to_item)):
+                    continue
                 content.append(Chapter(node_name, level))
                 folder_content = self._process_folder(full_path_to_item, level=level + 1)
                 content += folder_content
