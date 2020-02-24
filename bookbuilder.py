@@ -32,7 +32,7 @@ class BookBuilder(object):
         EpubGenerator(self._output_file_path_without_extension, metadata, content).generate()
 
     def _process_folder(self, folder_path, level=0):
-        exclusions = ["meta"]
+        exclusions = ["meta", "README.md"]
         content = []
         folder_content = listdir(folder_path)
         for node_name in folder_content:
