@@ -20,6 +20,14 @@ Example:
 
 Folders Part 1 and 2 will be H1 titles. H1 titles in chapter 1, 2 and 3 will be converted to H2 titles (demoted by one). Epilogue's title will not be demoted as it is at the manuscripts folder directly.
 
+Chapters will be processed alphabetical order. You may change that by adding numbers to the filenames like this:
+```/
++-- 1 Xenon first
++-- 2 Neon to second
++-- 3 Argon last
+```
+These kind of numbering could be used to organise the chapters. The numbers will be removed from the title at the table of contents.
+
 ## Format
 
 It could be designed by editing `templates/stylesheet.css`. Currently paragraph settings are set according to the Hungarian publishing tradition but could be changed freely.
